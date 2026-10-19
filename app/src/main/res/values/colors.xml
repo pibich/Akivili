@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="akivili_primary">#FFA000</color>
+    <color name="akivili_primary_dark">#E65100</color>
+    <color name="akivili_primary_light">#FFB800</color>
+    <color name="akivili_background">#FFFFFF</color>
+    <color name="akivili_surface">#FFFFFF</color>
+    <color name="akivili_on_primary">#FFFFFF</color>
+</resources>
