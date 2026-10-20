@@ -34,6 +34,9 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.akivili.app.core.designsystem.animation.bouncyClick
+import com.akivili.app.presentation.components.AkiviliTopBar
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QRISScreen(
@@ -70,14 +73,11 @@ fun QRISScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = { Text("Instruksi Pembayaran", color = Color.White, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackToHome) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali ke Beranda", tint = Color.White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AkiviliPrimary)
+            AkiviliTopBar(
+                title = "Tagihan Pembayaran",
+                showBackButton = true,
+                onBackClick = onBackToHome,
+                showNotificationIcon = false
             )
         }
     ) { paddingValues ->

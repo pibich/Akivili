@@ -7,13 +7,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.akivili.app.core.designsystem.theme.AkiviliPrimary
+import com.akivili.app.core.designsystem.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,60 +24,64 @@ fun AkiviliTopBar(
     unreadNotificationCount: Int = 0,
     onNotificationClick: () -> Unit = {}
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                ),
-                color = Color.White
-            )
-        },
-        navigationIcon = {
-            if (showBackButton) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Kembali",
-                        tint = Color.White
+    Column {
+        TopAppBar(
+            title = {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = if (title == "Akivili.") FontWeight.ExtraBold else FontWeight.Bold,
+                        fontSize = if (title == "Akivili.") 22.sp else 18.sp,
+                        color = if (title == "Akivili.") AkiviliPrimary else TextPrimary
                     )
-                }
-            }
-        },
-        actions = {
-            if (showNotificationIcon) {
-                IconButton(onClick = onNotificationClick) {
-                    if (unreadNotificationCount > 0) {
-                        BadgedBox(
-                            badge = {
-                                Badge(
-                                    containerColor = Color.Red,
-                                    contentColor = Color.White
-                                ) {
-                                    Text("$unreadNotificationCount", fontSize = 10.sp)
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notifikasi",
-                                tint = Color.White
-                            )
-                        }
-                    } else {
+                )
+            },
+            navigationIcon = {
+                if (showBackButton) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifikasi",
-                            tint = Color.White
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali",
+                            tint = TextPrimary
                         )
                     }
                 }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = AkiviliPrimary
+            },
+            actions = {
+                if (showNotificationIcon) {
+                    IconButton(onClick = onNotificationClick) {
+                        if (unreadNotificationCount > 0) {
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        containerColor = StatusFailed,
+                                        contentColor = Color.White
+                                    ) {
+                                        Text("$unreadNotificationCount", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = "Notifikasi",
+                                    tint = TextPrimary
+                                )
+                            }
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifikasi",
+                                tint = TextPrimary
+                            )
+                        }
+                    }
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.White,
+                scrolledContainerColor = Color.White
+            )
         )
-    )
+        HorizontalDivider(color = AkiviliOutline.copy(alpha = 0.5f), thickness = 0.8.dp)
+    }
 }

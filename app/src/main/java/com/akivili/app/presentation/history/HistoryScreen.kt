@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.akivili.app.core.designsystem.animation.bouncyClick
 import com.akivili.app.core.designsystem.theme.*
 import com.akivili.app.domain.model.Transaction
 import com.akivili.app.domain.model.TransactionStatus
@@ -151,7 +152,7 @@ fun TransactionItemCard(
         elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .bouncyClick { onClick() }
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(

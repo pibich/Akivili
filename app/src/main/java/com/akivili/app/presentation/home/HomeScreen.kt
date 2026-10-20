@@ -1,5 +1,9 @@
 package com.akivili.app.presentation.home
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.akivili.app.core.designsystem.animation.bouncyClick
 import com.akivili.app.core.designsystem.theme.*
 import com.akivili.app.data.dummy.DummyData
 import com.akivili.app.domain.model.AppNotification
@@ -35,6 +41,7 @@ import com.akivili.app.domain.model.Game
 import com.akivili.app.presentation.components.AkiviliTopBar
 import com.akivili.app.presentation.components.NotificationBottomSheet
 import kotlinx.coroutines.delay
+import kotlin.math.absoluteValue
 
 @Composable
 fun HomeScreen(
@@ -239,33 +246,60 @@ fun HomeBannerCarousel(banners: List<String>) {
     ) {
         HorizontalPager(
             state = pagerState,
+            pageSpacing = 12.dp,
+            contentPadding = PaddingValues(horizontal = 4.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(136.dp)
-                .clip(RoundedCornerShape(14.dp))
+                .height(140.dp)
         ) { page ->
-            AsyncImage(
-                model = banners[page],
-                contentDescription = "Promo Banner",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
+            val scale = (1f - (pageOffset * 0.08f)).coerceIn(0.92f, 1f)
+            val alpha = (1f - (pageOffset * 0.35f)).coerceIn(0.65f, 1f)
+
+            Card(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        this.alpha = alpha
+                    },
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+            ) {
+                AsyncImage(
+                    model = banners[page],
+                    contentDescription = "Promo Banner",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Indicator dots
+        // Animated Indicator dots
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             repeat(banners.size) { index ->
                 val isSelected = pagerState.currentPage == index
+                val animatedWidth by animateDpAsState(
+                    targetValue = if (isSelected) 22.dp else 6.dp,
+                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                    label = "bannerDotWidth"
+                )
+                val animatedColor by animateColorAsState(
+                    targetValue = if (isSelected) AkiviliPrimary else Color(0xFFCBD5E1),
+                    label = "bannerDotColor"
+                )
+
                 Box(
                     modifier = Modifier
-                        .size(if (isSelected) 18.dp else 6.dp, 6.dp)
+                        .size(width = animatedWidth, height = 6.dp)
                         .clip(CircleShape)
-                        .background(if (isSelected) AkiviliPrimary else Color(0xFFCBD5E1))
+                        .background(animatedColor)
                 )
             }
         }
@@ -280,8 +314,8 @@ fun GameCardItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
+            .bouncyClick { onClick() },
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {

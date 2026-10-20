@@ -22,7 +22,8 @@ import com.akivili.app.core.designsystem.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+import com.akivili.app.presentation.components.AkiviliTopBar
+
 @Composable
 fun ForgotPasswordScreen(
     onBackClick: () -> Unit,
@@ -45,14 +46,11 @@ fun ForgotPasswordScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = { Text("Lupa Kata Sandi", color = Color.White, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Color.White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AkiviliPrimary)
+            AkiviliTopBar(
+                title = "Lupa Kata Sandi",
+                showBackButton = true,
+                onBackClick = onBackClick,
+                showNotificationIcon = false
             )
         },
         containerColor = Color.White

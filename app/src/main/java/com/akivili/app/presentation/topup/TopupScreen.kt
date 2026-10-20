@@ -34,6 +34,9 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.akivili.app.core.designsystem.animation.bouncyClick
+import com.akivili.app.presentation.components.AkiviliTopBar
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopupScreen(
@@ -84,14 +87,11 @@ fun TopupScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = { Text(game.title, color = Color.White, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Color.White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AkiviliPrimary)
+            AkiviliTopBar(
+                title = game.title,
+                showBackButton = true,
+                onBackClick = onBackClick,
+                showNotificationIcon = false
             )
         },
         bottomBar = {
@@ -358,17 +358,28 @@ fun TopupScreen(
                                 ) {
                                     rowPackages.forEach { pkg ->
                                         val isSelected = selectedPackage?.id == pkg.id
+                                        val animatedBorderColor by androidx.compose.animation.animateColorAsState(
+                                            targetValue = if (isSelected) AkiviliPrimary else AkiviliOutline,
+                                            animationSpec = androidx.compose.animation.core.tween(200),
+                                            label = "BorderColor"
+                                        )
+                                        val animatedBgColor by androidx.compose.animation.animateColorAsState(
+                                            targetValue = if (isSelected) Color(0xFFFFFBEB) else Color.White,
+                                            animationSpec = androidx.compose.animation.core.tween(200),
+                                            label = "BgColor"
+                                        )
+
                                         Card(
                                             modifier = Modifier
                                                 .weight(1f)
-                                                .clickable { selectedPackage = pkg },
+                                                .bouncyClick { selectedPackage = pkg },
                                             shape = RoundedCornerShape(12.dp),
                                             colors = CardDefaults.cardColors(
-                                                containerColor = if (isSelected) Color(0xFFFFFBEB) else Color.White
+                                                containerColor = animatedBgColor
                                             ),
                                             border = BorderStroke(
                                                 width = if (isSelected) 1.8.dp else 1.dp,
-                                                color = if (isSelected) AkiviliPrimary else AkiviliOutline
+                                                color = animatedBorderColor
                                             )
                                         ) {
                                             Column(modifier = Modifier.padding(12.dp)) {

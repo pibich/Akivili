@@ -29,6 +29,9 @@ import com.akivili.app.domain.model.Voucher
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.akivili.app.core.designsystem.animation.bouncyClick
+import com.akivili.app.presentation.components.AkiviliTopBar
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentScreen(
@@ -74,14 +77,11 @@ fun PaymentScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Pilih Metode Pembayaran", color = Color.White, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Color.White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AkiviliPrimary)
+            AkiviliTopBar(
+                title = "Pilih Metode Pembayaran",
+                showBackButton = true,
+                onBackClick = onBackClick,
+                showNotificationIcon = false
             )
         },
         bottomBar = {
@@ -240,17 +240,28 @@ fun PaymentScreen(
 
                 items(methods) { method ->
                     val isSelected = selectedMethod?.code == method.code
+                    val animatedBorderColor by androidx.compose.animation.animateColorAsState(
+                        targetValue = if (isSelected) AkiviliPrimary else AkiviliOutline,
+                        animationSpec = androidx.compose.animation.core.tween(200),
+                        label = "MethodBorder"
+                    )
+                    val animatedBgColor by androidx.compose.animation.animateColorAsState(
+                        targetValue = if (isSelected) Color(0xFFFFFBEB) else Color.White,
+                        animationSpec = androidx.compose.animation.core.tween(200),
+                        label = "MethodBg"
+                    )
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedMethod = method },
+                            .bouncyClick { selectedMethod = method },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected) Color(0xFFFFFBEB) else Color.White
+                            containerColor = animatedBgColor
                         ),
                         border = BorderStroke(
                             width = if (isSelected) 1.8.dp else 1.dp,
-                            color = if (isSelected) AkiviliPrimary else AkiviliOutline
+                            color = animatedBorderColor
                         )
                     ) {
                         Row(
