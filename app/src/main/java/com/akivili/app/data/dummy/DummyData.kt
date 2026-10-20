@@ -5,9 +5,9 @@ import com.akivili.app.domain.model.*
 object DummyData {
 
     val promoBanners = listOf(
-        "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
-        "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&q=80",
-        "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80"
+        "https://cdn1.codashop.com/S/content/common/images/promos/Oct26/ID_MLBB_Starlight_Member_Hayabusa_Kitsune_Shadow_730x280.png",
+        "https://cdn1.codashop.com/S/content/common/images/promos/Oct26/FF-Cotton%20Teddy%20Bundle-730x280.png",
+        "https://cdn1.codashop.com/S/content/common/images/promos/Oct26/ID-Valorant-Champions2026XShopeepay-730x280.png"
     )
 
     val games = listOf(
@@ -16,8 +16,8 @@ object DummyData {
             title = "Mobile Legends",
             publisher = "Moonton",
             category = "Mobile",
-            imageUrl = "https://images.unsplash.com/photo-1563089145-599997674d42?w=300&q=80",
-            bannerUrl = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/MLBB-2025-tiles-178x178.jpg",
+            bannerUrl = "https://cdn1.codashop.com/S/content/common/images/promos/Oct26/ID_MLBB_Starlight_Member_Hayabusa_Kitsune_Shadow_730x280.png",
             requiresServerId = true,
             idPlaceholder = "Contoh: 12345678",
             serverPlaceholder = "Contoh: (2134)",
@@ -28,8 +28,8 @@ object DummyData {
             title = "Honkai: Star Rail",
             publisher = "HoYoverse",
             category = "RPG",
-            imageUrl = "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=300&q=80",
-            bannerUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/hsr_tile.jpg",
+            bannerUrl = "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=800&q=80",
             requiresServerId = true,
             serverList = listOf("Asia", "America", "Europe", "TW/HK/MO"),
             idPlaceholder = "Contoh: 800123456",
@@ -41,8 +41,8 @@ object DummyData {
             title = "Genshin Impact",
             publisher = "HoYoverse",
             category = "RPG",
-            imageUrl = "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=300&q=80",
-            bannerUrl = "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&q=80",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/Genshin_Impact_6th_Anniversary_Tile_178x178.png",
+            bannerUrl = "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?w=800&q=80",
             requiresServerId = true,
             serverList = listOf("Asia", "America", "Europe", "TW/HK/MO"),
             idPlaceholder = "Contoh: 812345678",
@@ -53,9 +53,9 @@ object DummyData {
             id = "freefire",
             title = "Free Fire",
             publisher = "Garena",
-            category = "Battle Royale",
-            imageUrl = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&q=80",
-            bannerUrl = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
+            category = "Mobile",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/Free_Fire_Lapak_178x178.png",
+            bannerUrl = "https://cdn1.codashop.com/S/content/common/images/promos/Oct26/FF-Cotton%20Teddy%20Bundle-730x280.png",
             requiresServerId = false,
             idPlaceholder = "Contoh: 1234567890",
             idHelperGuide = "Buka menu profil akun Free Fire Anda untuk menyalin nomor Player ID."
@@ -65,8 +65,8 @@ object DummyData {
             title = "Valorant",
             publisher = "Riot Games",
             category = "PC",
-            imageUrl = "https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=300&q=80",
-            bannerUrl = "https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=800&q=80",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/valorant_tile.jpg",
+            bannerUrl = "https://cdn1.codashop.com/S/content/common/images/promos/Oct26/ID-Valorant-Champions2026XShopeepay-730x280.png",
             requiresServerId = false,
             idPlaceholder = "Contoh: Player#ID1",
             idHelperGuide = "Masukkan Riot ID lengkap beserta hashtag, misal: Akivili#IDN."
@@ -75,8 +75,8 @@ object DummyData {
             id = "pubgm",
             title = "PUBG Mobile",
             publisher = "Level Infinite",
-            category = "Battle Royale",
-            imageUrl = "https://images.unsplash.com/photo-1542751110-97427bbecf20?w=300&q=80",
+            category = "Mobile",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/pubgm_tile_aug2024.jpg",
             bannerUrl = "https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&q=80",
             requiresServerId = false,
             idPlaceholder = "Contoh: 5123456789",
@@ -87,7 +87,7 @@ object DummyData {
             title = "Steam Wallet IDR",
             publisher = "Valve",
             category = "Voucher",
-            imageUrl = "https://images.unsplash.com/photo-1612287271131-0b5c1c8f15d7?w=300&q=80",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/steam_tile.jpg",
             bannerUrl = "https://images.unsplash.com/photo-1612287271131-0b5c1c8f15d7?w=800&q=80",
             requiresServerId = false,
             idPlaceholder = "Masukkan Nomor WhatsApp / Email",
@@ -98,7 +98,7 @@ object DummyData {
             title = "Google Play",
             publisher = "Google LLC",
             category = "Voucher",
-            imageUrl = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&q=80",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/googleplay_tile.png",
             bannerUrl = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
             requiresServerId = false,
             idPlaceholder = "Masukkan Nomor WhatsApp / Email",
@@ -108,12 +108,36 @@ object DummyData {
             id = "codm",
             title = "Call of Duty: Mobile",
             publisher = "Garena",
-            category = "Action",
-            imageUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&q=80",
+            category = "Mobile",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/codmobile_tile.jpg",
             bannerUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
             requiresServerId = false,
             idPlaceholder = "Contoh: 67489201948",
             idHelperGuide = "OpenID dapat disalin dari menu Pengaturan -> Lainnya di dalam game."
+        ),
+        Game(
+            id = "roblox",
+            title = "Roblox",
+            publisher = "Roblox Corporation",
+            category = "Voucher",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/Roblox-Gift-Cards-tile.png",
+            bannerUrl = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
+            requiresServerId = false,
+            idPlaceholder = "Username Akun Roblox",
+            idHelperGuide = "Pastikan Username Roblox yang dimasukkan sudah sesuai."
+        ),
+        Game(
+            id = "zzz",
+            title = "Zenless Zone Zero",
+            publisher = "HoYoverse",
+            category = "RPG",
+            imageUrl = "https://cdn1.codashop.com/S/content/mobile/images/product-tiles/ZZZ_Zenless-Zone-Zero-Tile.png",
+            bannerUrl = "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&q=80",
+            requiresServerId = true,
+            serverList = listOf("Asia", "America", "Europe", "TW/HK/MO"),
+            idPlaceholder = "Contoh: 100123456",
+            serverPlaceholder = "Pilih Server",
+            idHelperGuide = "UID tertera pada menu Profil di kiri bawah layar."
         )
     )
 

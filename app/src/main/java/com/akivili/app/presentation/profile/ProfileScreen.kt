@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akivili.app.core.designsystem.animation.bouncyClick
@@ -124,28 +125,65 @@ fun ProfileScreen(
                         }
                     }
                 } else {
-                    // Guest state
+                    // Guest state - clean & centered
                     Column(
-                        modifier = Modifier.padding(18.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(Icons.Default.AccountCircle, contentDescription = null, tint = TextMuted, modifier = Modifier.size(54.dp))
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape)
+                                .background(AkiviliSurfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                tint = TextMuted,
+                                modifier = Modifier.size(42.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "Mode Tamu (Guest)",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 17.sp,
+                                color = TextPrimary
+                            ),
+                            textAlign = TextAlign.Center
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Masuk untuk melihat riwayat poin dan fitur eksklusif",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary, fontSize = 12.sp)
+                            text = "Masuk untuk menikmati poin reward loyalti, riwayat pesanan lengkap, dan diskon eksklusif.",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                                lineHeight = 18.sp
+                            ),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = onNavigateToLogin,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(46.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = AkiviliPrimary),
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Masuk / Daftar Akun", fontWeight = FontWeight.Bold)
+                            Text(
+                                text = "Masuk / Daftar Akun",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    fontSize = 14.sp
+                                )
+                            )
                         }
                     }
                 }
