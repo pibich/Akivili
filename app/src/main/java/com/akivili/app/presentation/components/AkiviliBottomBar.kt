@@ -5,16 +5,16 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
@@ -46,6 +46,12 @@ sealed class BottomNavItem(
     object Profile : BottomNavItem(Screen.Profile.route, "Profil", Icons.Default.Person)
 }
 
+/**
+ * Freud v3 Style Floating Capsule Tab Navigation Bar:
+ * - Floating Island Pill Dock with smooth rounded curvature (CircleShape)
+ * - Active tab expands into high-contrast solid pill with spring physics
+ * - Ambient drop shadow and subtle border for premium modern aesthetic
+ */
 @Composable
 fun AkiviliBottomBar(
     currentRoute: String?,
@@ -58,99 +64,113 @@ fun AkiviliBottomBar(
         BottomNavItem.Profile
     )
 
-    Surface(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 16.dp,
-                shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp)
-            )
-            .border(
-                width = 0.8.dp,
-                color = AkiviliOutline.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp)
-            ),
-        shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
-        color = Color.White
+            .padding(horizontal = 20.dp, vertical = 12.dp)
+            .navigationBarsPadding(),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 10.dp)
-                .navigationBarsPadding(),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
+                .shadow(
+                    elevation = 16.dp,
+                    shape = CircleShape,
+                    spotColor = Color(0x38000000),
+                    ambientColor = Color(0x1A000000)
+                )
+                .border(
+                    width = 1.dp,
+                    color = Color(0xFFE2E8F0),
+                    shape = CircleShape
+                ),
+            shape = CircleShape,
+            color = Color.White
         ) {
-            items.forEach { item ->
-                val isSelected = currentRoute == item.route
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items.forEach { item ->
+                    val isSelected = currentRoute == item.route
 
-                // Spring scale for icon
-                val scale by animateFloatAsState(
-                    targetValue = if (isSelected) 1.14f else 1.0f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMedium
-                    ),
-                    label = "navIconScale"
-                )
+                    // Icon spring bounce animation
+                    val iconScale by animateFloatAsState(
+                        targetValue = if (isSelected) 1.12f else 1.0f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        ),
+                        label = "freudIconScale"
+                    )
 
-                // Animated background pill for active state
-                val pillBackground by animateColorAsState(
-                    targetValue = if (isSelected) AkiviliPrimaryContainer else Color.Transparent,
-                    animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                    label = "navPillColor"
-                )
+                    // Active pill container background
+                    val pillBgColor by animateColorAsState(
+                        targetValue = if (isSelected) AkiviliPrimary else Color.Transparent,
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                        label = "freudPillBgColor"
+                    )
 
-                val contentColor by animateColorAsState(
-                    targetValue = if (isSelected) AkiviliPrimaryDark else TextMuted,
-                    label = "navContentColor"
-                )
+                    // Active content color (white on active pill, muted on inactive)
+                    val contentColor by animateColorAsState(
+                        targetValue = if (isSelected) Color.White else TextMuted,
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                        label = "freudContentColor"
+                    )
 
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(pillBackground)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            if (!isSelected) {
-                                onNavigate(item.route)
-                            }
-                        }
-                        .padding(horizontal = if (isSelected) 16.dp else 12.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = item.label,
-                            tint = contentColor,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .graphicsLayer {
-                                    scaleX = scale
-                                    scaleY = scale
+                    Box(
+                        modifier = Modifier
+                            .height(44.dp)
+                            .clip(CircleShape)
+                            .background(pillBgColor)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                if (!isSelected) {
+                                    onNavigate(item.route)
                                 }
-                        )
-
-                        AnimatedVisibility(
-                            visible = isSelected,
-                            enter = fadeIn() + expandHorizontally(),
-                            exit = fadeOut() + shrinkHorizontally()
+                            }
+                            .padding(horizontal = if (isSelected) 16.dp else 14.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Row {
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = item.label,
-                                    fontSize = 12.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = contentColor,
-                                    maxLines = 1
-                                )
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.label,
+                                tint = contentColor,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .graphicsLayer {
+                                        scaleX = iconScale
+                                        scaleY = iconScale
+                                    }
+                            )
+
+                            AnimatedVisibility(
+                                visible = isSelected,
+                                enter = fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) +
+                                        expandHorizontally(spring(stiffness = Spring.StiffnessMediumLow)),
+                                exit = fadeOut(spring(stiffness = Spring.StiffnessMediumLow)) +
+                                        shrinkHorizontally(spring(stiffness = Spring.StiffnessMediumLow))
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = item.label,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = contentColor,
+                                        maxLines = 1
+                                    )
+                                }
                             }
                         }
                     }

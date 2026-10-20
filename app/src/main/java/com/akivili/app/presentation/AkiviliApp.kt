@@ -81,6 +81,7 @@ fun AkiviliApp(
 
         Scaffold(
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
+            containerColor = Color.Transparent,
             bottomBar = {
                 if (shouldShowBottomBar) {
                     AkiviliBottomBar(
