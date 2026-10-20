@@ -22,6 +22,7 @@ fun AkiviliTopBar(
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {},
     showNotificationIcon: Boolean = true,
+    unreadNotificationCount: Int = 0,
     onNotificationClick: () -> Unit = {}
 ) {
     TopAppBar(
@@ -49,11 +50,30 @@ fun AkiviliTopBar(
         actions = {
             if (showNotificationIcon) {
                 IconButton(onClick = onNotificationClick) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifikasi",
-                        tint = Color.White
-                    )
+                    if (unreadNotificationCount > 0) {
+                        BadgedBox(
+                            badge = {
+                                Badge(
+                                    containerColor = Color.Red,
+                                    contentColor = Color.White
+                                ) {
+                                    Text("$unreadNotificationCount", fontSize = 10.sp)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifikasi",
+                                tint = Color.White
+                            )
+                        }
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifikasi",
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         },

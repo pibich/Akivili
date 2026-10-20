@@ -3,8 +3,10 @@ package com.akivili.app.presentation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,12 +26,21 @@ import com.akivili.app.presentation.payment.QRISScreen
 import com.akivili.app.presentation.profile.ProfileScreen
 import com.akivili.app.presentation.splash.SplashScreen
 import com.akivili.app.presentation.topup.TopupScreen
+import com.akivili.app.presentation.viewmodel.AkiviliViewModel
 
 @Composable
-fun AkiviliApp() {
+fun AkiviliApp(
+    viewModel: AkiviliViewModel = viewModel()
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    val user by viewModel.currentUser.collectAsState()
+    val isGuest by viewModel.isGuest.collectAsState()
+    val transactions by viewModel.transactions.collectAsState()
+    val notifications by viewModel.notifications.collectAsState()
+    val appliedVoucher by viewModel.appliedVoucher.collectAsState()
 
     val bottomBarRoutes = listOf(
         Screen.Home.route,
@@ -76,6 +87,7 @@ fun AkiviliApp() {
             // Auth Screens
             composable(Screen.Login.route) {
                 LoginScreen(
+                    onLogin = { email, pass -> viewModel.login(email, pass) },
                     onLoginSuccess = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
@@ -88,6 +100,7 @@ fun AkiviliApp() {
                         navController.navigate(Screen.ForgotPassword.route)
                     },
                     onContinueAsGuest = {
+                        viewModel.continueAsGuest()
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
@@ -97,6 +110,7 @@ fun AkiviliApp() {
 
             composable(Screen.Register.route) {
                 RegisterScreen(
+                    onRegister = { u, e, p, pass -> viewModel.register(u, e, p, pass) },
                     onRegisterSuccess = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Register.route) { inclusive = true }
@@ -118,14 +132,17 @@ fun AkiviliApp() {
             // Bottom Navigation Destinations
             composable(Screen.Home.route) {
                 HomeScreen(
+                    notifications = notifications,
                     onGameSelected = { gameId ->
                         navController.navigate(Screen.Topup.createRoute(gameId))
-                    }
+                    },
+                    onMarkAllNotificationsRead = { viewModel.markAllNotificationsRead() }
                 )
             }
 
             composable(Screen.History.route) {
                 HistoryScreen(
+                    transactions = transactions,
                     onTransactionClick = { invoiceId ->
                         navController.navigate(Screen.QRISInvoice.createRoute(invoiceId))
                     }
@@ -138,10 +155,17 @@ fun AkiviliApp() {
 
             composable(Screen.Profile.route) {
                 ProfileScreen(
+                    user = user,
+                    isGuest = isGuest,
+                    onUpdateProfile = { u, e, p -> viewModel.updateProfile(u, e, p) },
                     onLogout = {
+                        viewModel.logout()
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }
+                    },
+                    onNavigateToLogin = {
+                        navController.navigate(Screen.Login.route)
                     }
                 )
             }
@@ -154,6 +178,9 @@ fun AkiviliApp() {
                 val gameId = backStackEntry.arguments?.getString("gameId") ?: "mlbb"
                 TopupScreen(
                     gameId = gameId,
+                    appliedVoucher = appliedVoucher,
+                    onApplyVoucher = { code -> viewModel.applyVoucher(code) },
+                    onRemoveVoucher = { viewModel.removeVoucher() },
                     onBackClick = { navController.popBackStack() },
                     onProceedToPayment = { gId, pId, uId, sId ->
                         navController.navigate(Screen.Payment.createRoute(gId, pId, uId, sId))
@@ -185,9 +212,17 @@ fun AkiviliApp() {
                     packageId = packageId,
                     userId = userId,
                     serverId = serverId,
+                    appliedVoucher = appliedVoucher,
                     onBackClick = { navController.popBackStack() },
-                    onPaymentSuccessProceed = { invoiceId ->
-                        navController.navigate(Screen.QRISInvoice.createRoute(invoiceId))
+                    onConfirmOrder = { paymentMethodCode ->
+                        val transaction = viewModel.createTransaction(
+                            gameId = gameId,
+                            packageId = packageId,
+                            userId = userId,
+                            serverId = serverId,
+                            paymentMethodCode = paymentMethodCode
+                        )
+                        navController.navigate(Screen.QRISInvoice.createRoute(transaction.invoiceId))
                     }
                 )
             }
@@ -198,8 +233,11 @@ fun AkiviliApp() {
                 arguments = listOf(navArgument("invoiceId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val invoiceId = backStackEntry.arguments?.getString("invoiceId") ?: "INV-AKV-001"
+                val trx = viewModel.getTransaction(invoiceId)
                 QRISScreen(
                     invoiceId = invoiceId,
+                    transaction = trx,
+                    onMarkPaid = { id -> viewModel.markTransactionSuccess(id) },
                     onBackToHome = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }

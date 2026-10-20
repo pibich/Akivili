@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material3.*
@@ -23,6 +25,7 @@ import com.akivili.app.core.designsystem.theme.*
 import com.akivili.app.data.dummy.DummyData
 import com.akivili.app.domain.model.PaymentCategory
 import com.akivili.app.domain.model.PaymentMethod
+import com.akivili.app.domain.model.Voucher
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -33,8 +36,9 @@ fun PaymentScreen(
     packageId: String,
     userId: String,
     serverId: String?,
+    appliedVoucher: Voucher?,
     onBackClick: () -> Unit,
-    onPaymentSuccessProceed: (invoiceId: String) -> Unit
+    onConfirmOrder: (paymentMethodCode: String) -> Unit
 ) {
     val game = remember(gameId) {
         DummyData.games.find { it.id == gameId } ?: DummyData.games.first()
@@ -54,13 +58,24 @@ fun PaymentScreen(
         }
     }
 
+    // Calculations
+    val subtotal = pkg.price
+    val discountAmount = if (appliedVoucher != null) {
+        if (appliedVoucher.discountPercent > 0) {
+            (subtotal * appliedVoucher.discountPercent) / 100
+        } else {
+            appliedVoucher.discountAmount
+        }
+    } else 0L
+
+    val discountedSubtotal = maxOf(0L, subtotal - discountAmount)
     val adminFee = selectedMethod?.adminFee ?: 0L
-    val totalAmount = pkg.price + adminFee
+    val totalAmount = discountedSubtotal + adminFee
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Metode Pembayaran", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = { Text("Pilih Metode Pembayaran", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Color.White)
@@ -72,7 +87,7 @@ fun PaymentScreen(
         bottomBar = {
             Surface(
                 color = Color.White,
-                shadowElevation = 12.dp,
+                shadowElevation = 14.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -83,20 +98,25 @@ fun PaymentScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Total Bayar", style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary))
+                        Text(
+                            text = "Total Bayar",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary, fontSize = 11.sp)
+                        )
                         Text(
                             text = rupiahFormat.format(totalAmount),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = AkiviliPrimaryDark
+                                color = AkiviliPrimaryDark,
+                                fontSize = 18.sp
                             )
                         )
                     }
 
                     Button(
                         onClick = {
-                            val newInvoiceId = "INV-AKV-${System.currentTimeMillis().toString().takeLast(8)}"
-                            onPaymentSuccessProceed(newInvoiceId)
+                            selectedMethod?.let { method ->
+                                onConfirmOrder(method.code)
+                            }
                         },
                         enabled = selectedMethod != null,
                         shape = RoundedCornerShape(12.dp),
@@ -128,78 +148,93 @@ fun PaymentScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "Ringkasan Pesanan",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Game", style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary))
-                            Text(game.title, fontWeight = FontWeight.SemiBold)
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Item Topup", style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary))
-                            Text(pkg.name, fontWeight = FontWeight.SemiBold)
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("ID Akun", style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary))
-                            Text(
-                                if (serverId != null && serverId != "NONE") "$userId ($serverId)" else userId,
-                                fontWeight = FontWeight.SemiBold
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        SummaryRow("Game", game.title)
+                        SummaryRow("Item Topup", pkg.name)
+                        SummaryRow(
+                            "Akun Tujuan",
+                            if (serverId != null && serverId != "NONE") "$userId ($serverId)" else userId
+                        )
+                        SummaryRow("Harga Paket", rupiahFormat.format(subtotal))
+
+                        if (discountAmount > 0) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 3.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "Diskon Voucher (${appliedVoucher?.code})",
+                                    style = MaterialTheme.typography.bodyMedium.copy(color = StatusSuccess, fontSize = 12.sp)
+                                )
+                                Text(
+                                    "- ${rupiahFormat.format(discountAmount)}",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = StatusSuccess,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+
+                        SummaryRow("Biaya Admin", rupiahFormat.format(adminFee))
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalDivider(color = AkiviliOutline)
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Harga", style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary))
-                            Text(rupiahFormat.format(pkg.price), fontWeight = FontWeight.SemiBold)
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Biaya Admin", style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary))
-                            Text(rupiahFormat.format(adminFee), fontWeight = FontWeight.SemiBold)
+                            Text(
+                                "Total Tagihan",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Text(
+                                rupiahFormat.format(totalAmount),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = AkiviliPrimaryDark
+                                )
+                            )
                         }
                     }
                 }
             }
 
-            // Pilihan Metode Pembayaran
+            // Heading Pilihan Pembayaran
             item {
                 Text(
-                    text = "Pilih Metode Pembayaran",
-                    style = MaterialTheme.typography.titleLarge.copy(
+                    text = "Metode Pembayaran",
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        fontSize = 16.sp
                     )
                 )
             }
 
-            // Group by category
             val groupedMethods = DummyData.paymentMethods.groupBy { it.category }
 
             groupedMethods.forEach { (category, methods) ->
                 item {
                     Text(
                         text = category.displayName,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold,
                             color = AkiviliSecondary
                         ),
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
 
@@ -214,7 +249,7 @@ fun PaymentScreen(
                             containerColor = if (isSelected) Color(0xFFFFFBEB) else Color.White
                         ),
                         border = BorderStroke(
-                            width = if (isSelected) 1.5.dp else 1.dp,
+                            width = if (isSelected) 1.8.dp else 1.dp,
                             color = if (isSelected) AkiviliPrimary else AkiviliOutline
                         )
                     ) {
@@ -227,30 +262,39 @@ fun PaymentScreen(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Surface(
-                                    modifier = Modifier.size(36.dp),
+                                    modifier = Modifier.size(38.dp),
                                     shape = RoundedCornerShape(8.dp),
                                     color = if (isSelected) AkiviliPrimaryContainer else AkiviliSurfaceVariant
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
+                                        val icon = when (method.category) {
+                                            PaymentCategory.QRIS -> Icons.Default.QrCode2
+                                            PaymentCategory.E_WALLET -> Icons.Default.AccountBalanceWallet
+                                            PaymentCategory.VIRTUAL_ACCOUNT -> Icons.Default.AccountBalance
+                                            else -> Icons.Default.AccountBalanceWallet
+                                        }
                                         Icon(
-                                            imageVector = Icons.Default.QrCode2,
+                                            imageVector = icon,
                                             contentDescription = null,
                                             tint = if (isSelected) AkiviliPrimaryDark else TextSecondary,
                                             modifier = Modifier.size(20.dp)
                                         )
                                     }
                                 }
+
                                 Spacer(modifier = Modifier.width(12.dp))
+
                                 Column {
                                     Text(
                                         text = method.name,
                                         style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 13.sp
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.sp,
+                                            color = TextPrimary
                                         )
                                     )
                                     Text(
-                                        text = "+ Biaya ${rupiahFormat.format(method.adminFee)}",
+                                        text = "Biaya Layanan: ${rupiahFormat.format(method.adminFee)}",
                                         style = MaterialTheme.typography.bodyMedium.copy(
                                             fontSize = 11.sp,
                                             color = TextMuted
@@ -272,5 +316,18 @@ fun PaymentScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SummaryRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary, fontSize = 12.sp))
+        Text(value, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 12.sp))
     }
 }

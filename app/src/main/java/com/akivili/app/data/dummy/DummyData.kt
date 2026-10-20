@@ -278,4 +278,17 @@ object DummyData {
             expiresAt = System.currentTimeMillis() - 171900000L
         )
     )
+
+    val vouchers = listOf(
+        Voucher("AKIVILI10", discountPercent = 10, description = "Diskon 10% Pengguna Baru"),
+        Voucher("HEMAT5K", discountAmount = 5000, description = "Potongan Langsung Rp 5.000"),
+        Voucher("SULTANPASS", discountPercent = 15, description = "Diskon Khusus 15%"),
+        Voucher("GACHAAMAN", discountAmount = 10000, description = "Potongan Spesial Rp 10.000")
+    )
+
+    val sampleNotifications = listOf(
+        AppNotification("notif_1", "Selamat Datang di Akivili!", "Nikmati kemudahan top-up game instan & terpercaya dengan berbagai promo menarik.", "Baru saja", false),
+        AppNotification("notif_2", "Promo Spesial QRIS 0% Fee", "Gunakan pembayaran QRIS bebas biaya admin hingga akhir pekan!", "2 jam lalu", false),
+        AppNotification("notif_3", "Pesanan Berhasil", "Top-up 257 Diamonds Mobile Legends (#INV-AKV-20261020-001) telah berhasil dikirim ke akun Anda.", "1 hari lalu", true)
+    )
 }

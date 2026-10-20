@@ -1,10 +1,13 @@
 package com.akivili.app.presentation.history
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akivili.app.core.designsystem.theme.*
-import com.akivili.app.data.dummy.DummyData
 import com.akivili.app.domain.model.Transaction
 import com.akivili.app.domain.model.TransactionStatus
 import com.akivili.app.presentation.components.AkiviliTopBar
@@ -25,10 +27,11 @@ import java.util.Locale
 
 @Composable
 fun HistoryScreen(
-    onTransactionClick: (String) -> Unit = {}
+    transactions: List<Transaction>,
+    onTransactionClick: (String) -> Unit
 ) {
     var selectedFilter by remember { mutableStateOf("Semua") }
-    val filters = listOf("Semua", "Pending", "Berhasil", "Gagal")
+    val filters = listOf("Semua", "Menunggu", "Berhasil", "Gagal")
 
     val rupiahFormat = remember {
         NumberFormat.getCurrencyInstance(Locale("id", "ID")).apply {
@@ -40,18 +43,18 @@ fun HistoryScreen(
         SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
     }
 
-    val filteredList = remember(selectedFilter) {
+    val filteredList = remember(selectedFilter, transactions) {
         when (selectedFilter) {
-            "Pending" -> DummyData.sampleTransactions.filter { it.status == TransactionStatus.PENDING }
-            "Berhasil" -> DummyData.sampleTransactions.filter { it.status == TransactionStatus.SUCCESS }
-            "Gagal" -> DummyData.sampleTransactions.filter { it.status == TransactionStatus.FAILED || it.status == TransactionStatus.EXPIRED }
-            else -> DummyData.sampleTransactions
+            "Menunggu" -> transactions.filter { it.status == TransactionStatus.PENDING }
+            "Berhasil" -> transactions.filter { it.status == TransactionStatus.SUCCESS }
+            "Gagal" -> transactions.filter { it.status == TransactionStatus.FAILED || it.status == TransactionStatus.EXPIRED }
+            else -> transactions
         }
     }
 
     Scaffold(
         topBar = {
-            AkiviliTopBar(title = "Riwayat Transaksi", showBackButton = false)
+            AkiviliTopBar(title = "Riwayat Transaksi", showBackButton = false, showNotificationIcon = false)
         }
     ) { paddingValues ->
         Column(
@@ -72,7 +75,7 @@ fun HistoryScreen(
                     FilterChip(
                         selected = isSelected,
                         onClick = { selectedFilter = filter },
-                        label = { Text(filter) },
+                        label = { Text(filter, fontSize = 12.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = AkiviliPrimary,
                             selectedLabelColor = Color.White,
@@ -89,18 +92,46 @@ fun HistoryScreen(
             }
 
             // Transactions List
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(filteredList, key = { it.invoiceId }) { trx ->
-                    TransactionItemCard(
-                        transaction = trx,
-                        rupiahFormat = rupiahFormat,
-                        dateFormat = dateFormat,
-                        onClick = { onTransactionClick(trx.invoiceId) }
-                    )
+            if (filteredList.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 60.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
+                            contentDescription = null,
+                            tint = TextMuted,
+                            modifier = Modifier.size(56.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Tidak Ada Riwayat Transaksi",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Transaksi yang Anda lakukan akan tercatat di sini.",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary, fontSize = 12.sp)
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(filteredList, key = { it.invoiceId }) { trx ->
+                        TransactionItemCard(
+                            transaction = trx,
+                            rupiahFormat = rupiahFormat,
+                            dateFormat = dateFormat,
+                            onClick = { onTransactionClick(trx.invoiceId) }
+                        )
+                    }
                 }
             }
         }
@@ -115,10 +146,12 @@ fun TransactionItemCard(
     onClick: () -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(2.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
@@ -128,7 +161,7 @@ fun TransactionItemCard(
             ) {
                 Text(
                     text = transaction.gameTitle,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 )
 
                 // Status Badge
@@ -147,7 +180,8 @@ fun TransactionItemCard(
                         text = badgeText,
                         style = MaterialTheme.typography.labelMedium.copy(
                             color = statusColor,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
                         ),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                     )
@@ -157,7 +191,7 @@ fun TransactionItemCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${transaction.packageName} • ID: ${transaction.userId}",
+                text = "${transaction.packageName} • ID: ${transaction.userId}${if (transaction.serverId != null) " (${transaction.serverId})" else ""}",
                 style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary, fontSize = 12.sp)
             )
 
@@ -170,16 +204,23 @@ fun TransactionItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = dateFormat.format(Date(transaction.createdAt)),
-                    style = MaterialTheme.typography.bodyMedium.copy(color = TextMuted, fontSize = 11.sp)
-                )
+                Column {
+                    Text(
+                        text = transaction.invoiceId,
+                        style = MaterialTheme.typography.bodyMedium.copy(color = TextMuted, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                    )
+                    Text(
+                        text = dateFormat.format(Date(transaction.createdAt)),
+                        style = MaterialTheme.typography.bodyMedium.copy(color = TextMuted, fontSize = 10.sp)
+                    )
+                }
 
                 Text(
                     text = rupiahFormat.format(transaction.totalAmount),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        color = AkiviliPrimaryDark
+                        color = AkiviliPrimaryDark,
+                        fontSize = 14.sp
                     )
                 )
             }

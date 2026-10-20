@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,146 +22,191 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akivili.app.core.designsystem.theme.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
+    onRegister: (username: String, email: String, phone: String, pass: String) -> Boolean,
     onRegisterSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "Akivili.",
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = AkiviliPrimary
-            )
-        )
-        Text(
-            text = "Buat Akun Baru",
-            style = MaterialTheme.typography.titleMedium.copy(
-                color = TextSecondary
-            ),
-            modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
-        )
-
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = AkiviliPrimary) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = AkiviliPrimary) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it },
-            label = { Text("Nomor WhatsApp / HP") },
-            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = AkiviliPrimary) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = AkiviliPrimary) },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Konfirmasi Password") },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = AkiviliPrimary) },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = onRegisterSuccess,
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.White
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = AkiviliPrimary)
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Daftar Akun",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                text = "Akivili.",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = AkiviliPrimary
                 )
             )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Sudah punya akun? ",
-                style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
+                text = "Buat Akun Baru",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = TextSecondary
+                )
             )
-            Text(
-                text = "Masuk di sini",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = AkiviliPrimary,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.clickable { onNavigateToLogin() }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Username") },
+                placeholder = { Text("Contoh: Trailblazer99") },
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = AkiviliPrimary) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                placeholder = { Text("nama@email.com") },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = AkiviliPrimary) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = { Text("Nomor WhatsApp / HP") },
+                placeholder = { Text("08123456789") },
+                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = AkiviliPrimary) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Kata Sandi") },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = AkiviliPrimary) },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Toggle Sandi"
+                        )
+                    }
+                },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Konfirmasi Kata Sandi") },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = AkiviliPrimary) },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            Button(
+                onClick = {
+                    when {
+                        username.isBlank() || email.isBlank() || phone.isBlank() || password.isBlank() -> {
+                            scope.launch { snackbarHostState.showSnackbar("Semua kolom wajib diisi.") }
+                        }
+                        password != confirmPassword -> {
+                            scope.launch { snackbarHostState.showSnackbar("Kata sandi dan konfirmasi tidak cocok.") }
+                        }
+                        password.length < 6 -> {
+                            scope.launch { snackbarHostState.showSnackbar("Kata sandi minimal 6 karakter.") }
+                        }
+                        else -> {
+                            val ok = onRegister(username, email, phone, password)
+                            if (ok) {
+                                onRegisterSuccess()
+                            } else {
+                                scope.launch { snackbarHostState.showSnackbar("Gagal mendaftar akun. Coba lagi.") }
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = AkiviliPrimary)
+            ) {
+                Text(
+                    text = "Daftar Akun",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Sudah punya akun? ",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
+                )
+                Text(
+                    text = "Masuk di sini",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = AkiviliPrimaryDark,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.clickable { onNavigateToLogin() }
+                )
+            }
         }
     }
 }
