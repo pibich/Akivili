@@ -76,6 +76,7 @@ fun PaymentScreen(
     val totalAmount = discountedSubtotal + adminFee
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             AkiviliTopBar(
                 title = "Pilih Metode Pembayaran",

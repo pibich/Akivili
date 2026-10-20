@@ -54,6 +54,7 @@ fun HistoryScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             AkiviliTopBar(title = "Riwayat Transaksi", showBackButton = false, showNotificationIcon = false)
         }

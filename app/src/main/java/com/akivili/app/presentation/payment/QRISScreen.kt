@@ -71,6 +71,7 @@ fun QRISScreen(
     val formattedTime = String.format("%02d:%02d", minutes, seconds)
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             AkiviliTopBar(

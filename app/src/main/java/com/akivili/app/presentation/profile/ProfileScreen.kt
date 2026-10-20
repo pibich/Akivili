@@ -47,6 +47,7 @@ fun ProfileScreen(
     var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             AkiviliTopBar(title = "Profil & Pengaturan", showBackButton = false, showNotificationIcon = false)

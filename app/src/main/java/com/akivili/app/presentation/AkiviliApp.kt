@@ -80,6 +80,7 @@ fun AkiviliApp(
         )
 
         Scaffold(
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
                 if (shouldShowBottomBar) {
                     AkiviliBottomBar(

@@ -66,6 +66,7 @@ fun HomeScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             AkiviliTopBar(
                 title = "Akivili.",
