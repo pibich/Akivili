@@ -80,7 +80,8 @@ fun AkiviliTopBar(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.White,
                 scrolledContainerColor = Color.White
-            )
+            ),
+            windowInsets = WindowInsets(0, 0, 0, 0)
         )
         HorizontalDivider(color = AkiviliOutline.copy(alpha = 0.5f), thickness = 0.8.dp)
     }
