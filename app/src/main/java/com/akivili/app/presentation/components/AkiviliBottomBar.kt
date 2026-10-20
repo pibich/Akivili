@@ -1,10 +1,10 @@
 package com.akivili.app.presentation.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -20,8 +20,8 @@ sealed class BottomNavItem(
     val icon: ImageVector
 ) {
     object Home : BottomNavItem(Screen.Home.route, "Beranda", Icons.Default.Home)
-    object History : BottomNavItem(Screen.History.route, "Riwayat", Icons.Default.ReceiptLong)
-    object Help : BottomNavItem(Screen.HelpCenter.route, "Bantuan", Icons.Default.HelpOutline)
+    object History : BottomNavItem(Screen.History.route, "Riwayat", Icons.AutoMirrored.Filled.ReceiptLong)
+    object Help : BottomNavItem(Screen.HelpCenter.route, "Bantuan", Icons.AutoMirrored.Filled.HelpOutline)
     object Profile : BottomNavItem(Screen.Profile.route, "Profil", Icons.Default.Person)
 }
 

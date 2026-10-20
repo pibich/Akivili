@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="akivili_background">#FFFFFF</color>
+    <color name="akivili_on_primary">#FFFFFF</color>
+    <color name="akivili_primary">#FFA000</color>
+    <color name="akivili_primary_dark">#E65100</color>
+    <color name="akivili_primary_light">#FFB800</color>
+    <color name="akivili_surface">#FFFFFF</color>
+    <string name="app_name">Akivili</string>
+    <style name="Theme.Akivili" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#FFA000</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
